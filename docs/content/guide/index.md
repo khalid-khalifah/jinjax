@@ -192,5 +192,35 @@ def environment(loader: FileSystemLoader, **options):
 ```
 
 #### FastAPI:
+First, import and set up `Jinja2Templates` from FastAPI. This will create a Jinja environment for rendering templates.
 
-TBD
+```python
+from fastapi.templating import Jinja2Templates
+from jinjax.catalog import Catalog
+
+# Create Jinja2Templates instance pointing to your templates folder
+templates = Jinja2Templates(directory="temp")
+
+# Set up Jinjax Catalog using the Jinja environment
+catalog = Catalog(jinja_env=templates.env)
+
+# Add your templates folder to the catalog
+catalog.add_folder("temp")
+```
+
+After that, Let's say you have a Jinjax template named `Number.jinja`. In this template, you might want to use the `url_for` function to generate URLs, for example:
+```jinja
+{#def
+  request,
+  i:int
+#}
+
+<script src="{{ url_for('static', path='js/number_button.js') }}"></script>
+<button id="number_button"> {{ i }} </button>
+```
+Finally, to render this template remember to pass the `request` object and any other necessary variables to the template.
+```python
+@app.get("/number_button", response_class=HTMLResponse)
+async def number_button(request: Request):
+    return catalog.render("Number", request=request, i=1)
+```
